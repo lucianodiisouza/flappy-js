@@ -78,15 +78,10 @@ function Passaro(alturaJogo) {
   this.getY = () => parseInt(this.elemento.style.bottom.split('px'[0]))
   this.setY = (y) => (this.elemento.style.bottom = `${y}px`)
 
-  window.onkeydown = (e) => {
-    voando = true
-    console.log(e)
-  }
+  window.onkeydown = (e) => (voando = true)
 
-  window.onkeyup = (e) => {
-    voando = false
-    console.log(e)
-  }
+  window.onkeyup = (e) => (voando = false)
+
   this.animar = () => {
     const novoY = this.getY() + (voando ? 8 : -5)
     const alturaMaxima = alturaJogo - this.elemento.clientHeight
@@ -103,14 +98,42 @@ function Passaro(alturaJogo) {
   this.setY(alturaJogo / 2)
 }
 
-// Runnig
-const barreiras = new Barreiras(700, 1200, 200, 400)
-const passaro = new Passaro(700)
-const gameArea = document.querySelector('[tp-flappy]')
-gameArea.appendChild(passaro.elemento)
-barreiras.pares.forEach((par) => gameArea.appendChild(par.elemento))
+function Progresso() {
+  this.elemento = novoElemento('span', 'progresso')
 
-setInterval(() => {
-  barreiras.animar()
-  passaro.animar()
-}, 20)
+  this.atualizarPontos = (pontos) => {
+    this.elemento.innerHTML = pontos
+  }
+
+  this.atualizarPontos(0)
+}
+
+function Flappybird() {
+  let pontos = 0
+
+  const gameArea = document.querySelector('[tp-flappy')
+  const altura = gameArea.clientHeight
+  const largura = gameArea.clientWidth
+
+  const progresso = new Progresso()
+  const barreiras = new Barreiras(altura, largura, 200, 400, () =>
+    progresso.atualizarPontos(++pontos)
+  )
+
+  const passaro = new Passaro(altura)
+
+  gameArea.appendChild(progresso.elemento)
+  gameArea.appendChild(passaro.elemento)
+
+  barreiras.pares.forEach((par) => gameArea.appendChild(par.elemento))
+
+  this.start = () => {
+    const temporizador = setInterval(() => {
+      barreiras.animar()
+      passaro.animar()
+    }, 20)
+  }
+}
+
+// Runnig
+new Flappybird().start()
