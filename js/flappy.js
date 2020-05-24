@@ -41,5 +41,39 @@ function ParBarreiras(altura, abertura, x) {
   this.setX(x)
 }
 
-const b = new ParBarreiras(700, 200, 800)
-document.querySelector('[tp-flappy]').appendChild(b.elemento)
+function Barreiras(altura, largura, abertura, espaco, notificarPonto) {
+  this.pares = [
+    new ParBarreiras(altura, abertura, largura),
+    new ParBarreiras(altura, abertura, largura + espaco),
+    new ParBarreiras(altura, abertura, largura + espaco * 2),
+    new ParBarreiras(altura, abertura, largura + espaco * 3),
+  ]
+
+  const deslocamento = 3
+
+  this.animar = () => {
+    this.pares.forEach((par) => {
+      par.setX(par.getX() - deslocamento)
+
+      //   When bar get out of gameScreen
+      if (par.getX() < par.getLargura()) {
+        par.setX(par.getX() + espaco * this.pares.length)
+        par.sortearAbertura()
+      }
+
+      const meio = largura / 2
+      const cruzouMeio = par.getX() + deslocamento >= meio 
+        && par.getX() < meio
+
+      if (cruzouMeio) notificarPonto()
+    })
+  }
+}
+
+const barreiras = new Barreiras(700, 1200, 200, 400)
+const gameArea = document.querySelector('[tp-flappy]')
+barreiras.pares.forEach((par) => gameArea.appendChild(par.elemento))
+
+setInterval(() => {
+  barreiras.animar()
+}, 20)
